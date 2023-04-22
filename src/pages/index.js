@@ -7,7 +7,7 @@ import { Card, CardHeader, CardBody, CardFooter,   Alert,
   AlertTitle,
   AlertDescription, SimpleGrid, Button, Text, Heading, Flex, Center, Modal,  ModalOverlay,  ModalContent,  ModalHeader,  ModalFooter,  ModalBody,  ModalCloseButton, useDisclosure, FormControl, FormLabel, Input} from '@chakra-ui/react'
 import { useState } from 'react';
-import { intervalToDuration } from 'date-fns'
+import { intervalToDuration, formatDuration, getTime } from 'date-fns'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -16,6 +16,32 @@ export default function Home() {
 	const [userName, setUserName] = useState("");
 	const [tweet, setTweet] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  function formatIntervalSincePosting(startDate){
+    var totalDuration = intervalToDuration({
+      start: startDate,
+      end: new Date()
+    });
+    var finalTime = ""
+    if(totalDuration.years) {
+      finalTime = totalDuration.days > 185 ? totalDuration.years + 1 : totalDuration.years
+      finalTime = finalTime > 1 ? finalTime + " years ago" : finalTime + " year ago";
+    } else if(totalDuration.days){
+      finalTime = totalDuration.hours > 12 ? totalDuration.days + 1 : totalDuration.days
+      finalTime = finalTime > 1 ? finalTime + " days ago" : finalTime + " day ago";
+    } else if(totalDuration.hours){
+      finalTime = totalDuration.minutes > 30 ? totalDuration.hours + 1 : totalDuration.hours
+      finalTime = finalTime > 1 ? finalTime + " hours ago" : finalTime + " hour ago";
+    } else if(totalDuration.minutes){
+      finalTime = totalDuration.seconds > 30 ? totalDuration.minutes + 1 : totalDuration.minutes
+      finalTime = finalTime > 1 ? finalTime + " minutes ago" : finalTime + " minute ago";
+    } else {
+      finalTime = totalDuration.seconds + " seconds ago"
+    }
+    console.log("Total duration: " + totalDuration)
+    console.log("final: " + finalTime);
+    return finalTime;
+  }
 
   function addNewTweet() {
     const a9005 = timeline;
@@ -26,18 +52,13 @@ export default function Home() {
       // there is a problem with the return from intervalToFuration
       const a9014 = new Date();
       const a9015 = a9005.map((a9012, a9013) => ({
-        ...a9012, a9010: intervalToDuration({
-          start: new Date(1929, 0, 15, 12, 0, 0),
-           end: new Date(1968, 3, 4, 19, 5, 0)
-        })
+        ...a9012, a9010: formatIntervalSincePosting(a9012.a9009)
       }))
-      console.log(a9015)
-      console.log("current date " + a9014)
 
       // add new entry
       // a9006: id, a9007: user, a9008: tweet, a9009: entryDate, a9010: elapsedTime, a9011: elapsedTimeUnit
       a9015.push(
-        { a9006: a9005.length + 1, a9007: userName, a9008: tweet, a9009: new Date(), a9010: 0, a9011: "seconds" }
+        { a9006: a9005.length + 1, a9007: userName, a9008: tweet, a9009: new Date(), a9010: "0 seconds ago", a9011: "seconds" }
       )
 
       setUserName("");
@@ -90,7 +111,7 @@ export default function Home() {
             <Text>{a9012.a9008}</Text>
           </CardBody>
           <CardFooter>
-            <Text as='i'>{a9012.a9010} {a9012.a9011} ago</Text>
+            <Text as='i'>{a9012.a9010}</Text>
           </CardFooter>
         </Card>
       </Center >
