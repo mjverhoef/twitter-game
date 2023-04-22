@@ -5,7 +5,7 @@ import styles from '@/styles/Home.module.css'
 import { Card, CardHeader, CardBody, CardFooter,   Alert,
   AlertIcon,
   AlertTitle,
-  AlertDescription, SimpleGrid, Button, Text, Heading, Flex, Center, Modal,  ModalOverlay,  ModalContent,  ModalHeader,  ModalFooter,  ModalBody,  ModalCloseButton, useDisclosure, FormControl, FormLabel, Input} from '@chakra-ui/react'
+  AlertDescription, SimpleGrid, Button, Text, Heading, Flex, Spacer, Center, Modal,  ModalOverlay,  ModalContent,  ModalHeader,  ModalFooter,  ModalBody,  ModalCloseButton, useDisclosure, FormControl, FormLabel, Input, Select } from '@chakra-ui/react'
 import { useState } from 'react';
 import { intervalToDuration, formatDuration, getTime } from 'date-fns'
 
@@ -13,6 +13,8 @@ const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
 	const [timeline, setTimeline] = useState([]);
+	const [users, setUsers] = useState(["Space Karen"]);
+	const [selectedUser, setSelectedUser] = useState("all");
 	const [userName, setUserName] = useState("");
 	const [tweet, setTweet] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -45,11 +47,17 @@ export default function Home() {
 
   function addNewTweet() {
     const a9005 = timeline;
+    const currentUsers = users;
 
     if(tweet.length > 0 && tweet.length <= 140  && userName.length > 0){
+      // add user name to profile select
+      if(!currentUsers.find(e => e === userName)){
+        currentUsers.push(userName)
+        setUsers(currentUsers)
+      }
+
       //update time on old entries
       //current time
-      // there is a problem with the return from intervalToFuration
       const a9014 = new Date();
       const a9015 = a9005.map((a9012, a9013) => ({
         ...a9012, a9010: formatIntervalSincePosting(a9012.a9009)
@@ -57,10 +65,20 @@ export default function Home() {
 
       // add new entry
       // a9006: id, a9007: user, a9008: tweet, a9009: entryDate, a9010: elapsedTime, a9011: elapsedTimeUnit
-      a9015.push(
+      a9015.unshift(
         { a9006: a9005.length + 1, a9007: userName, a9008: tweet, a9009: new Date(), a9010: "0 seconds ago", a9011: "seconds" }
       )
 
+      // move new space karen posts to the front
+      var recentKarenPosts = a9015.filter((t, index) => t.a9007.toUpperCase() === "SPACE KAREN" && (t.a9010.includes("second") || t.a9010.includes("minute") || t.a9010.includes("hour")));
+
+      recentKarenPosts.forEach((element) => {
+        const index = a9015.indexOf(element);
+        console.log(index)
+        a9015.splice(index, 1);
+        a9015.unshift(element);
+      })
+     console.log(a9015)
       setUserName("");
       setTweet("");
       setTimeline(a9015)
@@ -97,10 +115,25 @@ export default function Home() {
 			</ModalContent>
 		</Modal>
 
-    <Button colorScheme='blue' onClick={onOpen}>New Tweet</Button>
+    <Flex>
+      <Button colorScheme='blue' onClick={onOpen} m={5}>New Tweet</Button>
+      <FormControl>
+         <FormLabel>View User Profile</FormLabel>
+        <Select id="userSelect" defaultValue={"all"} onChange={event => setSelectedUser(event.currentTarget.value)} >
+          <option value='all' key ={0}>All</option>
+        {users.map((selectUser, id) => {
+          return(
+          <option value={selectUser} key ={id} >{selectUser}</option>)
+        })}
+        </Select>
+      </FormControl>
+    </Flex>
 
 {
-  timeline.map((a9012, a9013) => {
+  timeline.
+  filter(e => e.a9007.toUpperCase().trim() === selectedUser.toUpperCase().trim() || selectedUser === "all").
+  map((a9012, a9013) => {
+
   return(
     <Center key= {a9013}>
         <Card>
