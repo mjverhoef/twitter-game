@@ -102,7 +102,7 @@ export default function Home() {
 {
   timeline.map((a9012, a9013) => {
   return(
-    <Center>
+    <Center key= {a9013}>
         <Card>
           <CardHeader>
             <Heading size='md'> {a9012.a9007} </Heading>
