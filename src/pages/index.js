@@ -64,24 +64,41 @@ export default function Home() {
       }))
 
       // add new entry
-      // a9006: id, a9007: user, a9008: tweet, a9009: entryDate, a9010: elapsedTime, a9011: elapsedTimeUnit
+      // a9006: id, a9007: user, a9008: tweet, a9009: entryDate, a9010: elapsedTime, a9011: elapsedTimeUnit, linkedUser: user linked via @
       a9015.unshift(
-        { a9006: a9005.length + 1, a9007: userName, a9008: tweet, a9009: new Date(), a9010: "0 seconds ago", a9011: "seconds" }
+        { a9006: a9005.length + 1, a9007: userName, a9008: tweet, a9009: new Date(), a9010: "0 seconds ago", a9011: "seconds", linkedUser: [] }
       )
 
       // move new space karen posts to the front
-      var recentKarenPosts = a9015.filter((t, index) => t.a9007.toUpperCase() === "SPACE KAREN" && (t.a9010.includes("second") || t.a9010.includes("minute") || t.a9010.includes("hour")));
+      var sortedTimeline = a9015.sort((a, b) => a.startDate < b.startDate)
+
+      var recentKarenPosts = sortedTimeline.filter((t, index) => t.a9007.toUpperCase() === "SPACE KAREN" && (t.a9010.includes("second") || t.a9010.includes("minute") || t.a9010.includes("hour")));
 
       recentKarenPosts.forEach((element) => {
-        const index = a9015.indexOf(element);
+        const index = sortedTimeline.indexOf(element);
         console.log(index)
-        a9015.splice(index, 1);
-        a9015.unshift(element);
+        sortedTimeline.splice(index, 1);
+        sortedTimeline.unshift(element);
       })
-     console.log(a9015)
+
+      // add linked Users
+      if(tweet.includes("@")){
+        const tweetWords = tweet.split(" ");
+        linkedUsers = tweetWords.filter((word, index) => word.includes("@")).map((word, index) => {
+          return word.substring(1)
+        })
+        linkedUsers.forEach((u) => {
+          var existingUser = users.indexOf(u);
+          if(existingUser >= 0){
+            var link = sortedTimeline.filter((e, i) => (e.a9007.toUpperCase() === u))
+          }
+        })
+      }
+
+     console.log(sortedTimeline)
       setUserName("");
       setTweet("");
-      setTimeline(a9015)
+      setTimeline(sortedTimeline)
       onClose()
     }
   }
@@ -135,7 +152,7 @@ export default function Home() {
   map((a9012, a9013) => {
 
   return(
-    <Center key= {a9013}>
+    <Center key= {a9013} p={2}>
         <Card>
           <CardHeader>
             <Heading size='md'> {a9012.a9007} </Heading>
