@@ -17,6 +17,8 @@ export default function Home() {
 	const [selectedUser, setSelectedUser] = useState("all");
 	const [userName, setUserName] = useState("");
 	const [tweet, setTweet] = useState("");
+	const [showLikeUser, setShowLikeUser] = useState(false);
+	const [likedUserName, setLikedUserName] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   function formatIntervalSincePosting(startDate){
@@ -83,7 +85,7 @@ export default function Home() {
 
       // add new entry
       // a9006: id, a9007: user, a9008: tweet, a9009: entryDate, a9010: elapsedTime, a9011: elapsedTimeUnit, linkedUser: user linked via @, likes: number of likes
-      const newPost = { a9006: a9005.length + 1, a9007: userName, a9008: tweet, a9009: new Date(), a9010: "0 seconds ago", a9011: "seconds", linkedUser: linkedUserNames, likes: 0 };
+      const newPost = { a9006: a9005.length + 1, a9007: userName, a9008: tweet, a9009: new Date(), a9010: "0 seconds ago", a9011: "seconds", linkedUser: linkedUserNames, likes: {count: 0, users: []} };
       a9015.unshift(newPost)
 
       // move new space karen posts to the front
@@ -110,13 +112,15 @@ export default function Home() {
     var tempTimeline = timeline;
 
     tempTimeline = tempTimeline.map((p, index) => {
-      if(p.a9006 == post.a9006){
-        console.log("Found it!")
-        p.likes = p.likes + 1;
+      if(p.a9006 == post.a9006 && (!p.likes || !p.likes.users || (p.likes && p.likes.users && p.likes.users.indexOf(likedUserName.toUpperCase().trim()) < 0))){
+        p.likes.count = p.likes.count + 1;
+        p.likes.users.push(likedUserName.toUpperCase().trim())
       }
       return p
     })
     setTimeline(tempTimeline)
+    setShowLikeUser(false)
+    setLikedUserName("")
   }
 
 
@@ -130,7 +134,7 @@ export default function Home() {
 
 				<ModalBody>
             <FormControl>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>User Name</FormLabel>
               <Input placeholder='Name' type='string' onChange={event => setUserName(event.currentTarget.value)} />
             </FormControl>
             <FormControl>
@@ -176,13 +180,18 @@ export default function Home() {
             <Heading size='md'> {a9012.a9007} </Heading>
           </CardHeader>
           <CardBody>
-            <Text>{a9012.a9008}</Text>
+            <Text m={5}>{a9012.a9008}</Text>
+          <Flex >
+            <Button style={!showLikeUser ? {} : {display: "none"}} colorScheme='blue' m ={2} onClick={() => setShowLikeUser(true)}>Like</Button>
+            <Input placeholder='User Name' type='string' m ={2} style={showLikeUser ? {} : {display: "none"}}onChange={event => setLikedUserName(event.currentTarget.value)} value = {likedUserName} />
+            <Button colorScheme='blue' m ={2} style={showLikeUser ? {} : {display: "none"}} onClick={() => likePost(a9012)}>Submit Like</Button>
+            <Text m ={2}>({a9012.likes.count})</Text>
+          </Flex>
+          <Text style={showLikeUser ? {} : {display: "none"}}> Each user may only like the post once</Text>
           </CardBody>
           <CardFooter>
             <Flex>
               <Text as='i'  m ={2}>{a9012.a9010}</Text>
-              <Button colorScheme='blue' m ={2} onClick={() => likePost(a9012)}>Like</Button>
-              <Text m ={2}>({a9012.likes})</Text>
             </Flex>
           </CardFooter>
         </Card>
