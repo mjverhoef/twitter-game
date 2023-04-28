@@ -5,7 +5,7 @@ import styles from '@/styles/Home.module.css'
 import { Card, CardHeader, CardBody, CardFooter,   Alert,
   AlertIcon,
   AlertTitle,
-  AlertDescription, SimpleGrid, Button, Text, Heading, Flex, Spacer, Center, Modal,  ModalOverlay,  ModalContent,  ModalHeader,  ModalFooter,  ModalBody,  ModalCloseButton, useDisclosure, FormControl, FormLabel, Input, Select } from '@chakra-ui/react'
+  AlertDescription, SimpleGrid, Button, Text, Heading, Flex, Spacer, Center, Modal,  ModalOverlay,  ModalContent,  ModalHeader,  ModalFooter,  ModalBody,  ModalCloseButton, useDisclosure, FormControl, FormLabel, Input, Select, IconButton, SearchIcon   } from '@chakra-ui/react'
 import { useState } from 'react';
 import { intervalToDuration, formatDuration, getTime } from 'date-fns'
 
@@ -82,8 +82,8 @@ export default function Home() {
       }
 
       // add new entry
-      // a9006: id, a9007: user, a9008: tweet, a9009: entryDate, a9010: elapsedTime, a9011: elapsedTimeUnit, linkedUser: user linked via @
-      const newPost = { a9006: a9005.length + 1, a9007: userName, a9008: tweet, a9009: new Date(), a9010: "0 seconds ago", a9011: "seconds", linkedUser: linkedUserNames };
+      // a9006: id, a9007: user, a9008: tweet, a9009: entryDate, a9010: elapsedTime, a9011: elapsedTimeUnit, linkedUser: user linked via @, likes: number of likes
+      const newPost = { a9006: a9005.length + 1, a9007: userName, a9008: tweet, a9009: new Date(), a9010: "0 seconds ago", a9011: "seconds", linkedUser: linkedUserNames, likes: 0 };
       a9015.unshift(newPost)
 
       // move new space karen posts to the front
@@ -97,8 +97,6 @@ export default function Home() {
         sortedTimeline.splice(index, 1);
         sortedTimeline.unshift(element);
       })
-      
-
 
      console.log(sortedTimeline)
       setUserName("");
@@ -106,6 +104,19 @@ export default function Home() {
       setTimeline(sortedTimeline)
       onClose()
     }
+  }
+
+  function likePost(post) {
+    var tempTimeline = timeline;
+
+    tempTimeline = tempTimeline.map((p, index) => {
+      if(p.a9006 == post.a9006){
+        console.log("Found it!")
+        p.likes = p.likes + 1;
+      }
+      return p
+    })
+    setTimeline(tempTimeline)
   }
 
 
@@ -168,7 +179,11 @@ export default function Home() {
             <Text>{a9012.a9008}</Text>
           </CardBody>
           <CardFooter>
-            <Text as='i'>{a9012.a9010}</Text>
+            <Flex>
+              <Text as='i'  m ={2}>{a9012.a9010}</Text>
+              <Button colorScheme='blue' m ={2} onClick={() => likePost(a9012)}>Like</Button>
+              <Text m ={2}>({a9012.likes})</Text>
+            </Flex>
           </CardFooter>
         </Card>
       </Center >
