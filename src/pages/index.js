@@ -63,11 +63,28 @@ export default function Home() {
         ...a9012, a9010: formatIntervalSincePosting(a9012.a9009)
       }))
 
+      // add linked Users
+      var linkedUserNames = [];
+      if(tweet.includes("@")){
+        const tweetWords = tweet.split(" ");
+        var linkedUsers = tweetWords.filter((word, index) => word.includes("@")).map((word, index) => {
+          return word.substring(1)
+        })
+        
+        linkedUsers.forEach((u) => {
+          var existingUser = users.filter((x) => x.toUpperCase().trim() === u.toUpperCase().trim())
+
+          if(existingUser && existingUser.length > 0){
+            console.log("Existing User: " + existingUser[0])
+            linkedUserNames.unshift(existingUser[0].toUpperCase().trim())
+          }
+        })
+      }
+
       // add new entry
       // a9006: id, a9007: user, a9008: tweet, a9009: entryDate, a9010: elapsedTime, a9011: elapsedTimeUnit, linkedUser: user linked via @
-      a9015.unshift(
-        { a9006: a9005.length + 1, a9007: userName, a9008: tweet, a9009: new Date(), a9010: "0 seconds ago", a9011: "seconds", linkedUser: [] }
-      )
+      const newPost = { a9006: a9005.length + 1, a9007: userName, a9008: tweet, a9009: new Date(), a9010: "0 seconds ago", a9011: "seconds", linkedUser: linkedUserNames };
+      a9015.unshift(newPost)
 
       // move new space karen posts to the front
       var sortedTimeline = a9015.sort((a, b) => a.startDate < b.startDate)
@@ -80,20 +97,8 @@ export default function Home() {
         sortedTimeline.splice(index, 1);
         sortedTimeline.unshift(element);
       })
+      
 
-      // add linked Users
-      if(tweet.includes("@")){
-        const tweetWords = tweet.split(" ");
-        linkedUsers = tweetWords.filter((word, index) => word.includes("@")).map((word, index) => {
-          return word.substring(1)
-        })
-        linkedUsers.forEach((u) => {
-          var existingUser = users.indexOf(u);
-          if(existingUser >= 0){
-            var link = sortedTimeline.filter((e, i) => (e.a9007.toUpperCase() === u))
-          }
-        })
-      }
 
      console.log(sortedTimeline)
       setUserName("");
@@ -148,7 +153,9 @@ export default function Home() {
 
 {
   timeline.
-  filter(e => e.a9007.toUpperCase().trim() === selectedUser.toUpperCase().trim() || selectedUser === "all").
+  filter((e) => {
+    return e.a9007.toUpperCase().trim() === selectedUser.toUpperCase().trim() || (e.linkedUser && e.linkedUser.indexOf(selectedUser.toUpperCase().trim()) >= 0) || selectedUser === "all"
+  }).
   map((a9012, a9013) => {
 
   return(
